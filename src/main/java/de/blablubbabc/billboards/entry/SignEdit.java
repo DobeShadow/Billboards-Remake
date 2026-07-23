@@ -22,28 +22,16 @@ public class SignEdit {
 	@SuppressWarnings({"deprecation"})
 	public void sendBlockChange(Player player) {
 		Block block = location.getBlock();
-		if (Utils.hasBlockData()) {
-			player.sendBlockChange(location, block.getBlockData());
-		} else {
-			player.sendBlockChange(location, block.getType(), block.getData());
-		}
+		player.sendBlockChange(location, block.getBlockData());
 	}
 
 	@SuppressWarnings({"deprecation"})
 	public static void sendBlockChange(Player player, Location location, Material material) {
-		if (Utils.hasBlockData()) {
-			player.sendBlockChange(location, material.createBlockData());
-		} else {
-			player.sendBlockChange(location, material, (byte) 0);
-		}
+		player.sendBlockChange(location, material.createBlockData());
 	}
 
 	@SuppressWarnings({"deprecation"})
 	public static void sendBlockChange(Player player, Location location, Block block) {
-		if (Utils.hasBlockData()) {
-			player.sendBlockChange(location, block.getBlockData());
-		} else {
-			player.sendBlockChange(location, block.getType(), block.getData());
-		}
+		player.sendBlockChange(location, block.getBlockData());
 	}
 }

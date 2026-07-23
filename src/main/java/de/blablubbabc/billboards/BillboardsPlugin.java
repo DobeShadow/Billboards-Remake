@@ -103,9 +103,12 @@ public class BillboardsPlugin extends JavaPlugin implements Listener {
 		// 给旧版本 ProtocolLib 擦屁股
 		// 从某个版本开始，到 5.3.0+ 之后的某个开发版本解决的漏洞:
 		// ProtocolLib 会将 Player.Server.OPEN_SIGN_EDITOR 给识别成 Status.Server.PONG
-		PacketType packetType = PacketType.Play.Server.OPEN_SIGN_EDITOR;
-		Class<?> realClass = Utils.getClass("net.minecraft.network.protocol.game.PacketPlayOutOpenSignEditor");
-		if (realClass != null) try {
+		// ProtocolLib 5.3.0+ has this fixed natively, the reflection will just be skipped
+		try {
+			PacketType packetType = PacketType.Play.Server.OPEN_SIGN_EDITOR;
+			if (packetType == null) return;
+			Class<?> realClass = Utils.getClass("net.minecraft.network.protocol.game.PacketPlayOutOpenSignEditor");
+			if (realClass == null) return;
 			if (!StructureCache.newPacket(packetType).getClass().getName().contains("SignEditor")) {
 				// 替换 Play.Server.OPEN_SIGN_EDITOR 对应的 NMS 实现类
 				Method method = PacketRegistry.class.getDeclaredMethod("associate", PacketType.class, Class.class);
@@ -122,7 +125,7 @@ public class BillboardsPlugin extends JavaPlugin implements Listener {
 				getLogger().info("已修正 ProtocolLib 包: " + packetType.name() + " = " + testPacket.getClass().getName());
 			}
 		} catch (Throwable t) {
-			getLogger().log(Level.WARNING, "修正 ProtocolLib 的漏洞时出现错误", t);
+			getLogger().log(Level.WARNING, "修正 ProtocolLib 的漏洞时出现错误 (如果你的 ProtocolLib 版本 >= 5.3.0 可以忽略)", t);
 		}
 	}
 

@@ -2,11 +2,9 @@ package de.blablubbabc.billboards.util;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -16,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class Utils {
 	private static Boolean hasPAPI = null;
-	private static boolean hasBlockData;
 	public static void init() {
 		try {
 			Class.forName("me.clip.placeholderapi.PlaceholderAPI");
@@ -25,11 +22,6 @@ public class Utils {
 			hasPAPI = false;
 		}
 		hasPAPI = getClass("me.clip.placeholderapi.PlaceholderAPI") != null;
-		hasBlockData = getClass("org.bukkit.block.data.BlockData") != null;
-	}
-
-	public static boolean hasBlockData() {
-		return hasBlockData;
 	}
 
 	public static void runCommand(Player player, String command, Object... args) {
@@ -73,21 +65,17 @@ public class Utils {
 		return (string == null || string.isEmpty());
 	}
 
-	private static final Set<String> legacySigns = Sets.newHashSet("SIGN", "SIGN_POST", "WALL_SIGN");
 	public static boolean isNotSign(Material material) {
 		if (material == null) return true;
-		if (hasBlockData) {
-            Class<?> data = material.data;
-            if (data.isAssignableFrom(org.bukkit.block.data.type.Sign.class)) return false;
-            if (data.isAssignableFrom(org.bukkit.block.data.type.WallSign.class)) return false;
-            try {
-                if (data.isAssignableFrom(org.bukkit.block.data.type.HangingSign.class)) return false;
-                if (data.isAssignableFrom(org.bukkit.block.data.type.WallHangingSign.class)) return false;
-            } catch (Throwable ignored) {
-            }
-            return true;
+		if (!material.isBlock()) return true;
+		// In 1.21+, use Tag.ALL_SIGNS which includes all sign types (standing, wall, hanging)
+		try {
+			return !org.bukkit.Tag.ALL_SIGNS.isTagged(material);
+		} catch (Throwable ignored) {
+			// Fallback: all modern sign materials end with _SIGN
+			String name = material.name().toUpperCase();
+			return !(name.contains("_SIGN") || name.equals("SIGN"));
 		}
-		return !legacySigns.contains(material.name().toUpperCase());
 	}
 
 	public static Integer parseInteger(String string) {
